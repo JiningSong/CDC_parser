@@ -1,5 +1,3 @@
-# This is master branch
-# This is dev branch
 import requests
 from tqdm import tqdm
 from bs4 import BeautifulSoup
