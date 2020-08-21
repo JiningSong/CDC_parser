@@ -1,5 +1,7 @@
 import requests
+from tqdm import tqdm
 from bs4 import BeautifulSoup
+from pandas import DataFrame
 
 ROOT_URL = "https://emergency.cdc.gov{}"
 ARCHIVE_URL = "https://emergency.cdc.gov/han/{}.asp"
@@ -61,32 +63,45 @@ def get_message_time(soup):
 
     return time.strip()
 
+ARCHIVE_URL = "https://emergency.cdc.gov/han/{}.asp"
+
+def get_message_id(url):
+    return "CDC" + url.split('/')[-1].split('.')[0].upper()
+
+
 if __name__ == "__main__":
     results = []
 
     message_urls = get_message_urls()
 
-    for message_url in message_urls:
-        result_dict = {"url": message_url}
+    with tqdm(total=len(message_urls), desc="Crawling HAN Messages: ") as pbar:
+        for message_url in message_urls:
+            
+            # Build soup
+            soup = generate_soup(message_url)
+            
+            # Get message ID
+            message_id = get_message_id(message_url)
 
-        soup = generate_soup(message_url)
+            # Find message title
+            title = soup.find('h1').contents[0]        
+            # Find message type
+            message_type = get_message_type(soup)
+            # Find message publish date
+            publish_date = get_message_time(soup)
 
-        # Find message type
-        message_type = get_message_type(soup)
-        result_dict['type'] = message_type
+            result_dict = {
+                "message_id": message_id,
+                "title": title,
+                "url": message_url,
+                "message_type": message_type,
+                "publish_date": publish_date,
+            }
 
-        # Find message title
-        title = soup.find('h1').contents[0]
-        result_dict['title'] = title
-
-        # Find message time
-        time = get_message_time(soup)
-        result_dict['time'] = time
-
-        results.append(result_dict)
-
-    for el in results:
-        print(el)
+            results.append(result_dict)
+            pbar.update(1)
+        df = DataFrame(results)
+        print(df)
     # message1 = "https://emergency.cdc.gov/han/han00382.asp"
 
     # print(message1)
