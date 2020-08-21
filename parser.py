@@ -1,7 +1,6 @@
 import requests
 from tqdm import tqdm
 from bs4 import BeautifulSoup
-from pandas import DataFrame
 
 ROOT_URL = "https://emergency.cdc.gov{}"
 ARCHIVE_URL = "https://emergency.cdc.gov/han/{}.asp"
