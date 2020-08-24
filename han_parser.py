@@ -4,17 +4,13 @@ import string
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 from pandas import DataFrame
+from util import generate_soup
 
 # Constants
 ROOT_URL = "https://emergency.cdc.gov{}"
 ARCHIVE_URL = "https://emergency.cdc.gov/han/{}.asp"
 UL_CLASS = 'block-list'
 
-def generate_soup(url):
-    markup = requests.get(url).content
-    soup = BeautifulSoup(markup, "lxml")
-    return soup
- 
 
 def get_message_urls():
     message_urls = []
@@ -172,10 +168,7 @@ if __name__ == "__main__":
             result_dict = parse_data(message_url)
             results.append(result_dict)
             pbar.update(1)
-        
+        pbar.close()
         df = DataFrame(results)
         df.to_csv('HAN_Archive.csv', index=False)
         print(df)
-
-    # soup = generate_soup("https://emergency.cdc.gov/han/han00384.asp")
-    # print(get_message_body(soup))
